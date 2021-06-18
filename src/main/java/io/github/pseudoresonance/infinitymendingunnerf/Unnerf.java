@@ -19,9 +19,8 @@ import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 
 public class Unnerf extends JavaPlugin {
-	
-	private static Metrics metrics = null;
-	private Logger logger = this.getLogger();
+
+	private final Logger logger = this.getLogger();
 
 	@Override
 	public void onEnable() {
@@ -31,7 +30,7 @@ public class Unnerf extends JavaPlugin {
 			int ver = 0;
 			try {
 				bukkitVersion = bukkitPackageName.substring(bukkitPackageName.lastIndexOf(".") + 1);
-				ver = Integer.valueOf(bukkitVersion.split("_")[1]);
+				ver = Integer.parseInt(bukkitVersion.split("_")[1]);
 				logger.info("Loading in Minecraft 1." + ver);
 			} catch (IndexOutOfBoundsException | NumberFormatException e) {
 				logger.severe("Could not get Minecraft version from " + bukkitPackageName + "! Attempting load anyways as Minecraft 1.17 or later!");
@@ -107,10 +106,8 @@ public class Unnerf extends JavaPlugin {
 	}
 	
 	private void initializeMetrics() {
-		metrics = new Metrics(this, 8021);
-		metrics.addCustomChart(new SimplePie("java_type", () -> {
-			return ToolProvider.getSystemJavaCompiler() == null ? "JRE" : "JDK";
-	    }));
+		Metrics metrics = new Metrics(this, 8021);
+		metrics.addCustomChart(new SimplePie("java_type", () -> ToolProvider.getSystemJavaCompiler() == null ? "JRE" : "JDK"));
 	}
 	
 	private boolean tryImplementationOverride() {
@@ -125,6 +122,7 @@ public class Unnerf extends JavaPlugin {
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			logger.info("Unable to override, falling back to injection.");
 		} catch (ClassNotFoundException e) {
+			logger.info("Unable to find Purpur config class, falling back to injection.");
 		}
 		return false;
 	}
